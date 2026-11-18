@@ -1,0 +1,101 @@
+<header class="masthead">
+  <div class="container brand">
+    <span class="brand-mark" aria-hidden="true">$</span>
+    <span>ATM <small> / Banking demo</small></span>
+  </div>
+</header>
+
+<main class="container">
+  <section class="intro" aria-labelledby="accounts-title">
+    <p class="eyebrow">ACCOUNT OVERVIEW</p>
+    <h1 id="accounts-title">Your accounts</h1>
+    <p>Manage your balances and see your recent activity.</p>
+  </section>
+
+  @if (loading() && !snapshot()) {
+    <p role="status">Loading your accounts...</p>
+  }
+  @if (loadError()) {
+    <div class="load-error">
+      <p class="error" role="alert">{{ loadError() }}</p>
+      <button type="button" class="secondary" (click)="load()">Refresh dashboard</button>
+    </div>
+  }
+
+  @if (snapshot(); as dashboard) {
+    <div class="balances">
+      @for (account of dashboard.accounts; track account.id) {
+        <article class="balance-card">
+          <h2>{{ account.name }}</h2>
+          <p>{{ account.balance | currency: 'USD' }}</p>
+          <small>Available balance</small>
+        </article>
+      }
+    </div>
+
+    <div class="workspace">
+      <section class="panel" aria-labelledby="move-title">
+        <h2 id="move-title">Move money</h2>
+        <form (ngSubmit)="submit()" novalidate>
+          <fieldset [disabled]="loading() || submitting() || !!loadError()">
+            <legend class="sr-only">Transaction details</legend>
+            <div class="operations" role="group" aria-label="Transaction type">
+              @for (item of operations; track item.key) {
+                <button type="button" [attr.aria-pressed]="operation() === item.key"
+                  (click)="selectOperation(item.key)">{{ item.label }}</button>
+              }
+            </div>
+
+            <label for="account">{{ operation() === 'transfer' ? 'From account' : 'Account' }}</label>
+            <select id="account" name="account" [ngModel]="accountId()" (ngModelChange)="accountId.set($event)">
+              @for (account of dashboard.accounts; track account.id) {
+                <option [value]="account.id">{{ account.name }}</option>
+              }
+            </select>
+
+            @if (operation() === 'transfer') {
+              <label for="destination">To account</label>
+              <input id="destination" [value]="destination()?.name ?? ''" readonly>
+            }
+
+            <label for="amount">Amount (USD)</label>
+            <input id="amount" name="amount" type="text" inputmode="decimal" placeholder="0.00"
+              [(ngModel)]="amount" required>
+
+            <button type="submit" class="primary">{{ submitting() ? 'Processing...' : actionLabel() }}</button>
+          </fieldset>
+          @if (submitError()) {
+            <p class="error feedback" role="alert">{{ submitError() }}</p>
+          }
+          @if (success()) {
+            <p class="success feedback" role="status">{{ success() }}</p>
+          }
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="activity-title" [attr.aria-busy]="loading()">
+        <h2 id="activity-title">Transaction history</h2>
+        @if (dashboard.transactions.length) {
+          <ul class="activity">
+            @for (transaction of dashboard.transactions; track transaction.id) {
+              <li>
+                <div>
+                  <strong>{{ transaction.kind }}</strong>
+                  <p>{{ transactionAccounts(transaction) }}</p>
+                  <time [attr.datetime]="transaction.occurredAt">{{ transaction.occurredAt | date: 'medium' }}</time>
+                </div>
+                <span class="transaction-amount">
+                  {{ (transaction.kind === 'Withdrawal' ? -transaction.amount : transaction.amount) | currency: 'USD' }}
+                </span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="empty">No transactions yet. Your deposits, withdrawals, and transfers will appear here.</p>
+        }
+      </section>
+    </div>
+  }
+
+  <footer>Demo only. Balances and activity reset when the server restarts.</footer>
+</main>

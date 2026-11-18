@@ -1,0 +1,3 @@
+* { box-sizing: border-box; }
+body { margin: 0; color: #183330; background: #f5f8f6; font: 1rem/1.5 system-ui, sans-serif; }
+button, input, select { font: inherit; }
