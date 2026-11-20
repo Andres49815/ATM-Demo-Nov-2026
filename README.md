@@ -1,6 +1,6 @@
 # ATM coding exercise
 
-A single-user Angular ATM for depositing, withdrawing, and transferring USD between Checking and Savings. The dashboard shows available balances and newest-first transaction history. No sign-in or database setup is required.
+A single-user Angular ATM for depositing, withdrawing, and transferring USD between `Checking` and Savings`. The dashboard shows available balances and newest-first transaction history. No sign-in or database setup is required.
 
 ## Run locally
 
@@ -54,3 +54,40 @@ node scripts/smoke-test.mjs
 ```
 
 Run the smoke test against a freshly started API. It performs transactions and checks balances, history, rejected operations, and concurrent withdrawals. To run it again, restart the API first. The script accepts an optional base URL, such as `http://localhost:4200`, to test through Angular's proxy.
+
+# AI Disclaimer
+I used AI for the coding of most of the Front End of the application, and for some of the coding of the API, however, all the decisions of technical and design decisions are my own.
+
+# Decisions I took
+1. To create separate the application on the different layers:
+    - .Api: Controller, a minimal API was used in this case.
+    - .Infrastructure: Create the concrete instanceces of objects like required repositories.
+    - .Contracts: Contracts with the external world, i.e. Requests and Responses for the controller.
+    - .Application: Use cases, business logic, and interfaces.
+    - .Domain: Most inner layer, define the entities that are going to be used on the application.
+1. Use Entity Framework: Since it is the most common ORM used on dotnet, and since it could be integrated with OData protocol in a very easy way.
+1. Use Dependency Injection: To avoid the creation of instances all over the code.
+1. Use the repository pattern: Even when Entity Framework allready has an abstraction for the context, I prefer to continue using the repository pattern for clearer code and separation of concerns.  It is clearer to call `accountRepository.getAccountById(id)` than `context.Accounts.FirstOrDefault(account => account.id == id)`.
+
+# Extra things I would have done in a more real application
+1. Dockerize the application.
+1. Not use on memory database, but instead use SQL, or Oracle, or some real database.
+1. Take some of the parameteres from appsettings.json, like the initial balance, connection string, etc.
+
+# Demo and screenshots
+## Initial State
+Initial balance of $1,250.00, no transaction history
+
+![alt text](assets/initial_state.png)
+
+## Deposit
+![alt text](assets/deposit.png)
+
+![alt text](assets/deposit_2.png)
+
+## Withdraw
+![alt text](assets/withdraw.png)
+![alt text](assets/withdraw_error.png)
+
+## Transfer
+![alt text](assets/transfer.png)
