@@ -73,6 +73,7 @@ I used AI for the coding of most of the Front End of the application, and for so
 1. Dockerize the application.
 1. Not use on memory database, but instead use SQL, or Oracle, or some real database.
 1. Take some of the parameteres from appsettings.json, like the initial balance, connection string, etc.
+1. Add authorization and Authentication.
 
 # Demo and screenshots
 ## Initial State
